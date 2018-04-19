@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">test</string>
+
+    <string name="get_favorite">Get Favorites</string>
+
+    <string name="delete_items">Delete Items</string>
+
+    <string name="delete_widgets">Delete Widgets</string>
+
+    <string name="get_launcher_info">Get Launcher Info</string>
+
+    <string name="permission_description">Sprint Launcher Permission</string>
+
+    <string name="permission_label">Sprint Launcher Extension</string>
+
+    <string name="send_to_mobile_id">Trigger Mobile ID</string>
+</resources>
