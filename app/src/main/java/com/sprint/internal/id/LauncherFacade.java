@@ -268,15 +268,17 @@ public class LauncherFacade {
         Cursor cursor;
         if (null != resolver) {
             cursor = resolver.query(LauncherSettings.Favorites.CONTENT_URI, null, null, null, null);
+            Log.d(TAG, "getCurrentFavorites: cursor count:" + cursor.getCount());
             if (null != cursor && cursor.moveToFirst()) {
-                while (cursor.moveToNext()) {
+                do {
                     ColumnIndex index = new ColumnIndex(cursor);
                     DesktopItem item = toDesktopItem(cursor, index);
                     if (item instanceof DesktopFolder) {
+                        Log.d(TAG, "getCurrentFavorites: folder id:" + item.getId());
                         desktopFolders.append(item.getId(), (DesktopFolder) item);
                     }
                     tempList.add(item);
-                }
+                } while (cursor.moveToNext());
             } else {
                 if (null != cursor) {
                     cursor.close();
@@ -284,12 +286,19 @@ public class LauncherFacade {
             }
             Log.d(TAG, "getCurrentFavorites: total size from db:" + tempList.size());
             for (DesktopItem desktopItem : tempList) {
+                Long container = desktopItem.getContainer();
                 Long id = desktopItem.getId();
-                if (desktopFolders.indexOfKey(id) != -1) {
-                    Log.d(TAG, "getCurrentFavorites: filter folder child:" + id);
-                    desktopFolders.get(id).addChild(desktopItem);
-                } else {
+                Log.d(TAG, "getCurrentFavorites: desktopItem container:" + container);
+                if (desktopFolders.indexOfKey(container) >= 0) {
+                    // found folder, item is child
+                    Log.d(TAG, "this is a folder child:" + id);
+                    desktopFolders.get(container).addChild(desktopItem);
+                } else if (desktopFolders.indexOfKey(id) < 0){
+                    // not found, single item
+                    Log.d(TAG, "this is a single item:" + id);
                     desktopItemList.add(desktopItem);
+                } else {
+                    Log.d(TAG,"this is a folder :" + id);
                 }
             }
             Log.d(TAG, "getCurrentFavorites: single desktopItem size:" + desktopItemList.size());
@@ -298,6 +307,7 @@ public class LauncherFacade {
                 desktopItemList.add(desktopFolders.get(desktopFolders.keyAt(i)));
             }
         }
+        Log.d(TAG, "getCurrentFavorites: total desktopItem size:" + desktopItemList.size());
         return desktopItemList;
     }
 
