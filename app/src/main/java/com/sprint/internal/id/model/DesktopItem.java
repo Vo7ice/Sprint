@@ -130,7 +130,7 @@ public class DesktopItem {
         this.cellY = cellY;
     }
 
-    public void setContainer(Long container) {
+    public void setContainer(long container) {
         this.container = container;
     }
 

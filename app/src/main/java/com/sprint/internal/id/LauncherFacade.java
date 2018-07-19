@@ -216,30 +216,29 @@ public class LauncherFacade {
             Log.d(TAG, "setDesktop: set desktop item:" + desktopItem);
             Uri itemUri = addDesktopItemNoNotifyImpl(desktopItem);
             if (null != itemUri) {
-                Log.d(TAG, "setDesktop: set desktop item:" + desktopItem);
+                Log.d(TAG, "setDesktop: set desktop item itemUri = " + itemUri);
                 uriList.add(itemUri);
+                if (desktopItem instanceof DesktopFolder) {
+                    DesktopFolder folder = (DesktopFolder) desktopItem;
+                    List<DesktopItem> children = folder.getChildren();
+                    long containerId = ContentUris.parseId(itemUri);
+                    if (!children.isEmpty()) {
+                        for (DesktopItem child : children) {
+                            Log.d(TAG, "setDesktop: set folder item:" + child);
+                            child.setContainer(containerId);
+                            Uri childUri = addDesktopItemNoNotifyImpl(child);
+                            if (null != childUri) {
+                                uriList.add(childUri);
+                            } else {
+                                Log.d(TAG, "setDesktop: couldn`t get uri at insert db for folder item : " + child);
+                            }
+                        }
+                    } else {
+                        Log.w(TAG, "setDesktop: children for folder:" + folder.getTitle() + " is empty!");
+                    }
+                }
             } else {
                 Log.d(TAG, "setDesktop: couldn`t get uri at insert db for desktopitem : " + desktopItem);
-            }
-            if (desktopItem instanceof DesktopFolder) {
-                DesktopFolder folder = (DesktopFolder) desktopItem;
-                List<DesktopItem> children = folder.getChildren();
-                long containerId = ContentUris.parseId(itemUri);
-                if (!children.isEmpty()) {
-                    for (DesktopItem child : children) {
-                        Log.d(TAG, "setDesktop: set folder item:" + child);
-                        child.setContainer(containerId);
-                        Uri childUri = addDesktopItemNoNotifyImpl(child);
-                        if (null != childUri) {
-                            Log.d(TAG, "setDesktop: set folder item:" + child);
-                            uriList.add(childUri);
-                        } else {
-                            Log.d(TAG, "setDesktop: couldn`t get uri at insert db for folderitem : " + child);
-                        }
-                    }
-                } else {
-                    Log.w(TAG, "setDesktop: children for folder:" + folder.getTitle() + " is empty!");
-                }
             }
         }
         return uriList;
@@ -276,8 +275,10 @@ public class LauncherFacade {
                     if (item instanceof DesktopFolder) {
                         Log.d(TAG, "getCurrentFavorites: folder id:" + item.getId());
                         desktopFolders.append(item.getId(), (DesktopFolder) item);
-                    }
-                    tempList.add(item);
+                    } 
+                    if (null != item) {
+                        tempList.add(item);
+                    } 
                 } while (cursor.moveToNext());
             } else {
                 if (null != cursor) {
@@ -289,12 +290,10 @@ public class LauncherFacade {
                 Long container = desktopItem.getContainer();
                 Long id = desktopItem.getId();
                 Log.d(TAG, "getCurrentFavorites: desktopItem container:" + container);
-                if (desktopFolders.indexOfKey(container) >= 0) {
-                    // found folder, item is child
+                if (desktopFolders.indexOfKey(container) >= 0) { // found folder, item is child
                     Log.d(TAG, "this is a folder child:" + id);
                     desktopFolders.get(container).addChild(desktopItem);
-                } else if (desktopFolders.indexOfKey(id) < 0){
-                    // not found, single item
+                } else if (desktopFolders.indexOfKey(id) < 0){ // not found, single item
                     Log.d(TAG, "this is a single item:" + id);
                     desktopItemList.add(desktopItem);
                 } else {
@@ -304,7 +303,7 @@ public class LauncherFacade {
             Log.d(TAG, "getCurrentFavorites: single desktopItem size:" + desktopItemList.size());
             Log.d(TAG, "getCurrentFavorites: folder desktopItem size:" + desktopFolders.size());
             for (int i = 0; i < desktopFolders.size(); i++) {
-                desktopItemList.add(desktopFolders.get(desktopFolders.keyAt(i)));
+                desktopItemList.add(desktopFolders.valueAt(i));
             }
         }
         Log.d(TAG, "getCurrentFavorites: total desktopItem size:" + desktopItemList.size());
@@ -345,7 +344,7 @@ public class LauncherFacade {
             values.put(LauncherSettings.Favorites.CELLY, desktopItem.getCellY());
             values.put(LauncherSettings.Favorites.SCREEN, desktopItem.getScreenPriority());
         } else {
-            int rank = desktopItem.getCellY() * mLauncherInfo.getNumFolderColumns() + desktopItem.getCellX();
+            int rank = desktopItem.getCellY() * mLauncherInfo.getNumFolderColumns() + desktopItem.getCellY();
             values.put(LauncherSettings.Favorites.CELLX, desktopItem.getCellX());
             values.put(LauncherSettings.Favorites.CELLY, desktopItem.getCellY());
             values.put(LauncherSettings.Favorites.RANK, rank);
@@ -354,7 +353,7 @@ public class LauncherFacade {
         values.put(LauncherSettings.Favorites.ICON, desktopItem.getIcon());
         values.put(LauncherSettings.Favorites.ICON_PACKAGE, desktopItem.getIconPackage());
         values.put(LauncherSettings.Favorites.ICON_RESOURCE, desktopItem.getIconResource());
-        values.put(LauncherSettings.Favorites.ICON_TYPE, desktopItem.getIconType().getType());
+        // values.put(LauncherSettings.Favorites.ICON_TYPE, desktopItem.getIconType().getType());
         values.put(LauncherSettings.Favorites._ID, desktopItem.getId());
         values.put(LauncherSettings.Favorites.INTENT, desktopItem.getIntent());
         values.put(LauncherSettings.Favorites.ITEM_TYPE, desktopItem.getItemType().getType());
@@ -473,7 +472,7 @@ public class LauncherFacade {
             }
             return mColumnTable.get(indexKey);
         }
-
+        
         public boolean hasKey(String indexKey) {
             return mColumnTable.containsKey(indexKey);
         }

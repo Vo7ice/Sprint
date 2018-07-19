@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void deleteWidgets() {
         int[] widgets = new int[1];
-        widgets[0] = 18;
+        widgets[0] = 5;
         try {
             mLauncherFacade.deleteWidgetsFromHostByID(widgets);
             mLauncherFacade.notifyFavoritesChanges();
@@ -138,7 +138,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void deleteDesktopItems() {
         long[] ids = new long[1];
-        ids[0] = 1L;
+        ids[0] = 19L;
         try {
             mLauncherFacade.deleteDesktopItemsByIDNoNotify(ids);
             mLauncherFacade.notifyFavoritesChanges();

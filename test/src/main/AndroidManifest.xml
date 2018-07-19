@@ -3,13 +3,6 @@
           xmlns:tools="http://schemas.android.com/tools"
           package="com.sprint.internal.id.test">
 
-    <permission
-        android:name="com.sprint.internal.id.permission.LAUNCHERFACADE"
-        android:description="@string/permission_description"
-        android:icon="@mipmap/ic_launcher"
-        android:label="@string/permission_label"
-        android:protectionLevel="dangerous"/>
-
     <uses-permission android:name="com.sprint.internal.id.permission.LAUNCHERFACADE"/>
     <uses-permission android:name="com.android.launcher3.permission.READ_SETTINGS"/>
     <uses-permission android:name="com.android.launcher3.permission.WRITE_SETTINGS"/>
